@@ -130,44 +130,13 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
-        {
-            var coverType = _db.CoverType.Find(id);
-            if (coverType == null)
-            {
-                return NotFound();
-            }
-            return View(coverType);
-        }
-
-        [HttpPost]
-        [ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeletePOST(int id)
-        {
-            var target = _db.Product.Find(id);
-            if (target == null)
-            {
-                return NotFound();
-            }
-
-            _db.Product.Remove(target);
-            _db.Save();
-
-            TempData["success"] = $"Product '{target.Title}' removed successfully.";
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpGet]
         public IActionResult GetAll()
         {
             return Json(new { data = _db.Product.GetAll(includeProperties: "Category,CoverType").ToList() });
         }
 
         [HttpDelete]
-        [ActionName("Delete")]
-        public IActionResult DeleteDELETE(int id)
+        public IActionResult Delete(int id)
         {
             var target = _db.Product.Find(id);
             if (target == null)
