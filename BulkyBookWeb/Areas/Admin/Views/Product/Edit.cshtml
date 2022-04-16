@@ -94,7 +94,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    @if (Model.Product.Id != 0) {
+    @if (Model.Product.Id == 0) {
         <script>
             function ValidateInput() {
                 if (document.getElementById("uploadBox").value == "") {
