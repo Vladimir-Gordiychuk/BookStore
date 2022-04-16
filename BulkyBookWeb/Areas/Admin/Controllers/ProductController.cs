@@ -111,7 +111,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         {
             string wwwRootPath = _hostEnvironment.WebRootPath;
 
-            var fileName = Path.GetFileName(imageUrl);
+            var fileName = Path.GetFileNameWithoutExtension(imageUrl);
             var extension = Path.GetExtension(imageUrl);
             var uploads = Path.Combine(wwwRootPath, @"images\products");
 
@@ -163,6 +163,33 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         public IActionResult GetAll()
         {
             return Json(new { data = _db.Product.GetAll(includeProperties: "Category,CoverType").ToList() });
+        }
+
+        [HttpDelete]
+        [ActionName("Delete")]
+        public IActionResult DeleteDELETE(int id)
+        {
+            var target = _db.Product.Find(id);
+            if (target == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Specified Product not found."
+                });
+            }
+
+            var imageFile = GetImagePath(target.ImageUrl);
+            imageFile.Delete();
+
+            _db.Product.Remove(target);
+            _db.Save();
+
+            return Json(new
+            {
+                success = true,
+                message = "Product deleted successfully."
+            });
         }
 
     }
