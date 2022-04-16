@@ -60,6 +60,9 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             
             if (file != null)
             {
+                // todo: For security reasons it would be better
+                // to request existing ImageUrl from database. 
+
                 FileInfo fileInfo = GetImagePath(viewModel, file);
                 using (var fileStream = fileInfo.Open(FileMode.OpenOrCreate, FileAccess.Write))
                 {

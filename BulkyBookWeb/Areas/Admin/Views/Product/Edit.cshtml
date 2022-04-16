@@ -16,6 +16,7 @@
         <img src="@Model.Product.ImageUrl" class="mb-3 col-4" />
         <div asp-validation-summary="All"></div>
         <input asp-for="Product.Id" hidden />
+        <input asp-for="Product.ImageUrl" hidden />
         <div class="mb-3">
             <label asp-for="Product.Title"></label>
             <input asp-for="Product.Title" class="form-control" />
