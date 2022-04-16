@@ -57,19 +57,15 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             if (!ModelState.IsValid)
                 return View(viewModel);
 
-            string wwwRootPath = _hostEnvironment.WebRootPath;
+            
             if (file != null)
             {
-                string fileName = Guid.NewGuid().ToString();
-                var uploads = Path.Combine(wwwRootPath, @"images\products");
-                var extension = Path.GetExtension(file.FileName);
-                using (var fileStream = new FileStream(
-                    Path.Combine(uploads, fileName + extension),
-                    FileMode.Create))
+                FileInfo fileInfo = GetImagePath(viewModel, file);
+                using (var fileStream = fileInfo.Open(FileMode.OpenOrCreate, FileAccess.Write))
                 {
                     file.CopyTo(fileStream);
                 }
-                viewModel.Product.ImageUrl = @"\images\products\" + fileName + extension;
+                viewModel.Product.ImageUrl = @"\images\products\" + fileInfo.Name;
             }
 
             if (viewModel.Product.Id == CreateProductId)
@@ -83,12 +79,6 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             else
             {
                 // update existing product
-                var target = _db.Product.Find(viewModel.Product.Id);
-                if (target == null)
-                {
-                    return NotFound();
-                }
-
                 _db.Product.Update(viewModel.Product);
                 _db.Save();
 
@@ -96,6 +86,44 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        private FileInfo GetImagePath(ProductViewModel viewModel, IFormFile? file)
+        {
+            FileInfo fileInfo;
+            if (viewModel.Product.ImageUrl != null)
+            {
+                // Product already exists in a database and has an image.
+                fileInfo = GetImagePath(viewModel.Product.ImageUrl);
+            }
+            else
+            {
+                fileInfo = GenerateImagePath(Path.GetExtension(file.FileName));
+            }
+
+            return fileInfo;
+        }
+
+        private FileInfo GetImagePath(string imageUrl)
+        {
+            string wwwRootPath = _hostEnvironment.WebRootPath;
+
+            var fileName = Path.GetFileName(imageUrl);
+            var extension = Path.GetExtension(imageUrl);
+            var uploads = Path.Combine(wwwRootPath, @"images\products");
+
+            var filePath = Path.Combine(uploads, fileName + extension);
+            return new FileInfo(filePath);
+        }
+
+        private FileInfo GenerateImagePath(string extension)
+        {
+            string wwwRootPath = _hostEnvironment.WebRootPath;
+
+            var fileName = Guid.NewGuid().ToString();
+            var uploads = Path.Combine(wwwRootPath, @"images\products");
+            var filePath = Path.Combine(uploads, fileName + extension);
+            return new FileInfo(filePath);
         }
 
         [HttpGet]
