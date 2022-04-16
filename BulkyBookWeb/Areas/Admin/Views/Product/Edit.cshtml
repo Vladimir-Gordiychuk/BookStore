@@ -13,7 +13,7 @@
             <h2 class="text-primary">@action Product</h2>
         </div>
         <hr />
-
+        <img src="@Model.Product.ImageUrl" class="mb-3 col-4" />
         <div asp-validation-summary="All"></div>
         <input asp-for="Product.Id" hidden />
         <div class="mb-3">
