@@ -9,6 +9,8 @@ namespace BulkyBookWeb.Controllers
     [Area("Customer")]
     public class HomeController : Controller
     {
+        readonly string CategoryAndCoverType = string.Join(",", nameof(Product.Category), nameof(Product.CoverType));
+
         readonly ILogger<HomeController> _logger;
         readonly IUnitOfWork _db;
 
@@ -22,7 +24,7 @@ namespace BulkyBookWeb.Controllers
         public IActionResult Index()
         {
             var products = _db.Product
-                .GetAll(includeProperties: string.Join(",", nameof(Product.Category), nameof(Product.CoverType)))
+                .GetAll(includeProperties: CategoryAndCoverType)
                 .ToList();
 
             return View(products);
@@ -32,7 +34,7 @@ namespace BulkyBookWeb.Controllers
         {
             var cart = new ShoppingCart()
             {
-                Product = _db.Product.Find(id),
+                Product = _db.Product.GetFirstOrDefault(item => item.Id == id, includeProperties: CategoryAndCoverType),
                 Count = 1
             };
 
