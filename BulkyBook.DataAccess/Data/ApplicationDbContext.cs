@@ -12,6 +12,8 @@ namespace BulkyBook.DataAccess
 
         }
 
+        public DbSet<ApplicationUser> Users { get; set; }
+
         public DbSet<Category> Categories { get; set; }
 
         public DbSet<CoverType> CoverTypes { get; set; }
