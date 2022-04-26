@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿//#define FREAKING_EF
+
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -8,6 +10,7 @@ namespace BulkyBookWeb.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+#if FREAKING_EF
             migrationBuilder.DropPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens");
             migrationBuilder.DropPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins");
 
@@ -49,10 +52,12 @@ namespace BulkyBookWeb.Migrations
 
             migrationBuilder.AddPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens", new string[] { "UserId", "LoginProvider", "Name" });
             migrationBuilder.AddPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins", new string[] { "LoginProvider", "ProviderKey" });
+#endif
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+#if FREAKING_EF
             migrationBuilder.DropPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens");
             migrationBuilder.DropPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins");
 
@@ -94,6 +99,7 @@ namespace BulkyBookWeb.Migrations
 
             migrationBuilder.AddPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens", new string[] { "UserId", "LoginProvider", "Name" });
             migrationBuilder.AddPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins", new string[] { "LoginProvider", "ProviderKey" });
+#endif
         }
     }
 }
