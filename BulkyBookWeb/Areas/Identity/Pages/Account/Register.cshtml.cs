@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using BulkyBook.DataAccess.Repository;
 using BulkyBook.Models;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authentication;
@@ -33,6 +34,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IUnitOfWork _db;
 
 
         public RegisterModel(
@@ -41,7 +43,8 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IUnitOfWork db)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -50,6 +53,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _db = db;
         }
 
         /// <summary>
@@ -123,8 +127,13 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
             public string? Role { get; set; }
 
+            public int? CompanyId { get; set; }
+
             [ValidateNever]
             public IEnumerable<IdentityRole> UserRoles { get; set; }
+
+            [ValidateNever]
+            public IEnumerable<Company> Companies { get; set; }
         }
 
 
@@ -139,7 +148,8 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
             Input = new InputModel
             {
-                UserRoles = _roleManager.Roles.ToList()
+                UserRoles = _roleManager.Roles.ToList(),
+                Companies = _db.Company.GetAll()
             };
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -158,6 +168,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                 user.State = Input.State;
                 user.PostalCode = Input.PostalCode;
                 user.PhoneNumber = Input.PhoneNumber;
+                user.CompanyId = Input.CompanyId;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -207,6 +218,8 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
             }
 
             Input.UserRoles = _roleManager.Roles.ToList();
+            Input.Companies = _db.Company.GetAll();
+
             // If we got this far, something failed, redisplay form
             return Page();
         }
