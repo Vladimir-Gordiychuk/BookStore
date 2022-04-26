@@ -168,7 +168,9 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                 user.State = Input.State;
                 user.PostalCode = Input.PostalCode;
                 user.PhoneNumber = Input.PhoneNumber;
-                user.CompanyId = Input.CompanyId;
+                if (Input.Role == SD.RoleCustomerCompany) {
+                    user.CompanyId = Input.CompanyId;
+                }
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
