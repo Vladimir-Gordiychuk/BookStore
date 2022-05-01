@@ -11,6 +11,8 @@ namespace BulkyBook.DataAccess.Repository
     {
         IEnumerable<T> GetAll(string? includeProperties = null);
 
+        IEnumerable<T> Where(Expression<Func<T, bool>> filter, string? includeProperties = null);
+
         /// <summary>
         /// Get first item matching specidied <paramref name="filter"/>
         /// conditions or null (if there is no such an item).
