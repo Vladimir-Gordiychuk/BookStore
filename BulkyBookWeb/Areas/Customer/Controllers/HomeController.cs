@@ -1,8 +1,10 @@
 ﻿using BulkyBook.DataAccess.Repository;
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace BulkyBookWeb.Controllers
 {
@@ -30,15 +32,70 @@ namespace BulkyBookWeb.Controllers
             return View(products);
         }
 
-        public IActionResult Details(int id)
+        [HttpGet]
+        public IActionResult Details(int productId)
         {
-            var cart = new ShoppingCart()
-            {
-                Product = _db.Product.GetFirstOrDefault(item => item.Id == id, includeProperties: CategoryAndCoverType),
-                Count = 1
-            };
+            var targetProduct = _db.Product.Find(productId);
+            if (targetProduct is null)
+                return NotFound();
+
+            ShoppingCart cart = GetShoppingCart(productId);
 
             return View(cart);
+        }
+
+        private ShoppingCart GetShoppingCart(int productId)
+        {
+            var targetProduct = _db.Product.GetFirstOrDefault(
+                item => item.Id == productId,
+                string.Join(",", nameof(Product.CoverType), nameof(Product.Category)));
+
+            var cart = new ShoppingCart()
+            {
+                ProductId = productId,
+                Product = targetProduct,
+                Count = 1
+            };
+            return cart;
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public IActionResult Details(ShoppingCart cart)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            Debug.Assert(claimsIdentity != null, "User is required to be logged in.");
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            Debug.Assert(claim != null, "All valid users are supposed to have an Id.");
+            cart.ApplicationUserId = claim.Value;
+            cart.ApplicationUser = null;
+
+            //if (!ModelState.IsValid)
+            //{
+            //    return View(GetShoppingCart(cart.Product.Id));
+            //}
+
+            var tarterCart = _db.ShoppingCart.GetFirstOrDefault(
+                record =>
+                    record.ApplicationUserId == cart.ApplicationUserId &&
+                    record.ProductId == cart.ProductId);
+
+            if (tarterCart == null)
+            {
+                cart.ProductId = cart.Product.Id;
+                cart.Product = null;
+
+                _db.ShoppingCart.Add(cart);
+            }
+            else
+            {
+                tarterCart.Count += cart.Count;
+            }
+
+            _db.Save();
+
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()
