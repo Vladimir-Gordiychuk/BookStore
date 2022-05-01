@@ -23,16 +23,32 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         {
             var userId = GetCurrentUserId();
 
-            var cart = new ShoppingCartVm
-            {
-                Items = _db.ShoppingCart
+            var items = _db.ShoppingCart
                     .Where(
                         item => item.ApplicationUserId == userId,
                         nameof(ShoppingCart.Product))
-                    .ToList()
+                    .ToList();
+
+            foreach (var item in items)
+            {
+                item.Price = GetPriceBasedOnQuantity(item.Product, item.Count);
+            }
+
+            var cart = new ShoppingCartVm
+            {
+                Items = items
             };
 
             return View(cart);
+        }
+
+        private double GetPriceBasedOnQuantity(Product product, int count)
+        {
+            if (count < 50)
+                return product.Price;
+            if (count < 100)
+                return product.Price50;
+            return product.Price100;
         }
 
         private string GetCurrentUserId()
