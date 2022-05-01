@@ -29,14 +29,17 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                         nameof(ShoppingCart.Product))
                     .ToList();
 
+            var total = 0.0;
             foreach (var item in items)
             {
                 item.Price = GetPriceBasedOnQuantity(item.Product, item.Count);
+                total += item.Price * item.Count;
             }
 
             var cart = new ShoppingCartVm
             {
-                Items = items
+                Items = items,
+                CartTotal = total
             };
 
             return View(cart);
