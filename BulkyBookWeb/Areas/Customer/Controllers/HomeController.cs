@@ -64,11 +64,7 @@ namespace BulkyBookWeb.Controllers
         [Authorize]
         public IActionResult Details(ShoppingCart cart)
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-            Debug.Assert(claimsIdentity != null, "User is required to be logged in.");
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            Debug.Assert(claim != null, "All valid users are supposed to have an Id.");
-            cart.ApplicationUserId = claim.Value;
+            cart.ApplicationUserId = GetCurrentUserId();
             cart.ApplicationUser = null;
 
             //if (!ModelState.IsValid)
@@ -96,6 +92,15 @@ namespace BulkyBookWeb.Controllers
             _db.Save();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private string GetCurrentUserId()
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            Debug.Assert(claimsIdentity != null, "User is required to be logged in.");
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            Debug.Assert(claim != null, "All valid users are supposed to have an Id.");
+            return claim.Value;
         }
 
         public IActionResult Privacy()
