@@ -45,6 +45,52 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return View(cart);
         }
 
+        public IActionResult Plus(int cartId)
+        {
+            var targetCart = _db.ShoppingCart.Find(cartId);
+            if (targetCart == null)
+                return NotFound();
+
+            targetCart.Count += 1;
+
+            _db.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Minus(int cartId)
+        {
+            var targetCart = _db.ShoppingCart.Find(cartId);
+            if (targetCart == null)
+                return NotFound();
+
+            if (targetCart.Count > 1)
+            {
+                targetCart.Count -= 1;
+            }
+            else
+            {
+                _db.ShoppingCart.Remove(targetCart);
+            }
+
+            _db.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Remove(int cartId)
+        {
+            var targetCart = _db.ShoppingCart.Find(cartId);
+            if (targetCart == null)
+                return NotFound();
+
+            _db.ShoppingCart.Remove(targetCart);
+ 
+            _db.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         private double GetPriceBasedOnQuantity(Product product, int count)
         {
             if (count < 50)
