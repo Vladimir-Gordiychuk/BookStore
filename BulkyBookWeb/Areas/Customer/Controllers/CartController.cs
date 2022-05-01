@@ -45,6 +45,11 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return View(cart);
         }
 
+        public IActionResult Summary()
+        {
+            return View();
+        }
+
         public IActionResult Plus(int cartId)
         {
             var targetCart = _db.ShoppingCart.Find(cartId);
