@@ -27,6 +27,8 @@ namespace BulkyBook.Models
 
         public double OrderTotal { get; set; }
 
+        public string? OrderStatus { get; set; }
+
         public string? PaymentStatus { get; set; }
 
         public string? TrackingNumber { get; set; }
