@@ -9,7 +9,7 @@ namespace BulkyBook.DataAccess.Repository
 {
     public interface IApplicationUserRepository : IRepository<ApplicationUser>
     {
-        ApplicationUser Find(int id);
+        ApplicationUser Find(string id);
         void Update(ApplicationUser user);
     }
 }

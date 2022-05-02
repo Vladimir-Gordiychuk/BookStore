@@ -14,7 +14,7 @@ namespace BulkyBook.DataAccess.Repository
         {
         }
 
-        public ApplicationUser Find(int id)
+        public ApplicationUser Find(string id)
         {
             return _set.Find(id);
         }
