@@ -1,6 +1,7 @@
 ﻿using BulkyBook.DataAccess.Repository;
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
+using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -86,6 +87,59 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             };
 
             return View(cart);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Summary(OrderHeader orderHeader)
+        {
+            var userId = GetCurrentUserId();
+
+            var user = _db.ApplicationUser.Find(userId);
+
+            var items = _db.ShoppingCart
+                    .Where(
+                        item => item.ApplicationUserId == userId,
+                        nameof(ShoppingCart.Product))
+                    .ToList();
+
+            var total = 0.0;
+            foreach (var item in items)
+            {
+                item.Price = GetPriceBasedOnQuantity(item.Product, item.Count);
+                total += item.Price * item.Count;
+            }
+
+            orderHeader.OrderStatus = SD.StatusPending;
+            orderHeader.PaymentStatus = SD.PaymentStatusPending;
+            orderHeader.OrderDate = DateTime.Now;
+            orderHeader.ApplicationUserId = userId;
+            orderHeader.ApplicationUser = null;
+
+            _db.OrderHeader.Add(orderHeader);
+
+            // the following operation is performed
+            // in order to get Id of the newly created record.
+            // ¯\_(ツ)_/¯ todo: add safe transactions
+            _db.Save(); 
+
+            foreach (var item in items)
+            {
+                _db.OrderDetail.Add(new OrderDetail
+                {
+                    Price = item.Price,
+                    Product = item.Product,
+                    Count = item.Count,
+                    ProductId = item.ProductId,
+                    OrderId = orderHeader.Id
+                });
+            }
+
+            _db.ShoppingCart.RemoveRange(items);
+
+            _db.Save();
+
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Plus(int cartId)
