@@ -85,7 +85,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 OrderHeader = order
             };
 
-            return View();
+            return View(cart);
         }
 
         public IActionResult Plus(int cartId)
