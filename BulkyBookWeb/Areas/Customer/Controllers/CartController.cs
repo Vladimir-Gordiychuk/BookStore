@@ -39,7 +39,9 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             var cart = new ShoppingCartVm
             {
                 Items = items,
-                CartTotal = total
+                OrderHeader = new OrderHeader {
+                    OrderTotal = total
+                }
             };
 
             return View(cart);
@@ -47,6 +49,42 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         public IActionResult Summary()
         {
+            var userId = GetCurrentUserId();
+
+            var user = _db.ApplicationUser.Find(userId);
+
+            var items = _db.ShoppingCart
+                    .Where(
+                        item => item.ApplicationUserId == userId,
+                        nameof(ShoppingCart.Product))
+                    .ToList();
+
+            var total = 0.0;
+            foreach (var item in items)
+            {
+                item.Price = GetPriceBasedOnQuantity(item.Product, item.Count);
+                total += item.Price * item.Count;
+            }
+
+            var order = new OrderHeader
+            {
+                ApplicationUserId = userId,
+                ApplicationUser = user,
+                Name = user.Name,
+                StreetAddress = user.StreetAddress,
+                City = user.City,
+                State = user.State,
+                PostalCode = user.PostalCode,
+                PhoneNumber = user.PhoneNumber,
+                OrderTotal = total,
+            };
+
+            var cart = new ShoppingCartVm
+            {
+                Items = items,
+                OrderHeader = order
+            };
+
             return View();
         }
 
