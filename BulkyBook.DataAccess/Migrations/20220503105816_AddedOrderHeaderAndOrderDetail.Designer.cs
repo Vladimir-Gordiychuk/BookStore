@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BulkyBookWeb.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220502080314_AddedOrderHeaderAndOrderDetail")]
+    [Migration("20220503105816_AddedOrderHeaderAndOrderDetail")]
     partial class AddedOrderHeaderAndOrderDetail
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -151,6 +151,9 @@ namespace BulkyBookWeb.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("OrderTotal")
                         .HasColumnType("float");
