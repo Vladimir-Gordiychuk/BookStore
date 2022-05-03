@@ -196,7 +196,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             _db.Save();
 
-            return RedirectToAction("Index", "Home");
+            return View(id);
         }
 
         public IActionResult Plus(int cartId)
