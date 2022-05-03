@@ -4,8 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BulkyBook.Utility;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<StripeKeys>(builder.Configuration.GetSection(StripeKeys.Section));
 
 builder.Services.AddSingleton<IEmailSender, DummyEmailSender>();
 
@@ -47,8 +50,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthentication();
 
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

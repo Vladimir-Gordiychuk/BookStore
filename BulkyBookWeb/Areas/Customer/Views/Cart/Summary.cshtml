@@ -1,4 +1,7 @@
 ﻿@model ShoppingCartVm
+@using BulkyBook.Utility
+@using Microsoft.Extensions.Options
+@inject IOptions<StripeKeys> Stripe
 
 <form method="post">
 	<br />
