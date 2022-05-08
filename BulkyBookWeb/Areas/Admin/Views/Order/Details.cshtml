@@ -230,10 +230,30 @@
 								</li>
 							</ul>
 
-							<input type="submit" class="btn btn-primary form-control my-1" value="Start Processing" />
-							<input type="submit" class="btn btn-primary form-control my-1" value="Ship Order" />
-							<input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
-							<input type="submit" class="btn btn-danger form-control my-1" value="Cancel Order" />
+							@if (canEdit) {
+								@if (Model.Header.OrderStatus == SD.StatusApproved)
+								{
+									<input type="submit" class="btn btn-primary form-control my-1" value="Start Processing" />
+								}
+								@if (Model.Header.OrderStatus == SD.StatusInProcess)
+								{
+									<input type="submit" class="btn btn-primary form-control my-1" value="Ship Order" />
+								}
+								@if (
+									Model.Header.PaymentStatus == SD.PaymentStatusDelayedPayment &&
+									Model.Header.OrderStatus == SD.StatusShipped
+									)
+								{
+									<input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
+								}
+								@if (
+									Model.Header.OrderStatus != SD.StatusRefunded &&
+									Model.Header.OrderStatus != SD.StatusCancelled
+									)
+								{
+									<input type="submit" class="btn btn-danger form-control my-1" value="Cancel Order" />
+								}
+							}
 						</div>
 					</div>
 				</div>
