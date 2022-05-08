@@ -211,6 +211,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 {
                     order.OrderStatus = SD.StatusApproved;
                     order.PaymentStatus = SD.PaymentStatusApproved;
+                    order.PaymentDate = DateTime.Now;
                     _db.Save();
                 }
             }
