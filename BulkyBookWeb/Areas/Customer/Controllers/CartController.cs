@@ -112,8 +112,16 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 total += item.Price * item.Count;
             }
 
-            orderHeader.OrderStatus = SD.StatusPending;
-            orderHeader.PaymentStatus = SD.PaymentStatusPending;
+            if (user.CompanyId == null)
+            {
+                orderHeader.OrderStatus = SD.StatusPending;
+                orderHeader.PaymentStatus = SD.PaymentStatusPending;
+            }
+            else
+            {
+                orderHeader.OrderStatus = SD.StatusApproved;
+                orderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+            }
             orderHeader.OrderDate = DateTime.Now;
             orderHeader.ApplicationUserId = userId;
             orderHeader.ApplicationUser = null;
@@ -136,58 +144,73 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                     OrderId = orderHeader.Id
                 });
             }
+            _db.Save();
 
-            var domain = "https://localhost:44306/";
-            var options = new SessionCreateOptions
+            if (user.CompanyId == null)
             {
-                PaymentMethodTypes = new List<string>
+                // Individual user processing.
+
+                var domain = "https://localhost:44306/";
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string>
                 {
                     "card"
                 },
-                LineItems = items.Select(item =>
-                    new SessionLineItemOptions
-                    {
-                        PriceData = new SessionLineItemPriceDataOptions
+                    LineItems = items.Select(item =>
+                        new SessionLineItemOptions
                         {
-                            UnitAmount = (long)(item.Price * 100.0),
-                            Currency = "usd",
-                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            PriceData = new SessionLineItemPriceDataOptions
                             {
-                                Name = item.Product.Title,
+                                UnitAmount = (long)(item.Price * 100.0),
+                                Currency = "usd",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = item.Product.Title,
+                                },
                             },
-                        },
-                        Quantity = item.Count,
-                    }).ToList(),
-                Mode = "payment",
-                SuccessUrl = domain + $"Customer/Cart/OrderConfirmation?id={orderHeader.Id}",
-                CancelUrl = domain + $"Customer/Cart/Index",
-            };
+                            Quantity = item.Count,
+                        }).ToList(),
+                    Mode = "payment",
+                    SuccessUrl = domain + $"Customer/Cart/OrderConfirmation?id={orderHeader.Id}",
+                    CancelUrl = domain + $"Customer/Cart/Index",
+                };
 
-            var service = new SessionService();
-            Session session = service.Create(options);
+                var service = new SessionService();
+                Session session = service.Create(options);
 
-            orderHeader.SessionId = session.Id;
-            orderHeader.PaymentIntentId = session.PaymentIntentId;
+                orderHeader.SessionId = session.Id;
+                orderHeader.PaymentIntentId = session.PaymentIntentId;
 
-            _db.Save();
+                _db.Save();
 
-            Response.Headers.Add("Location", session.Url);
-            return new StatusCodeResult(303);
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult(303);
 
-
+            }
+            else
+            {
+                return RedirectToAction("OrderConfirmation", "Cart",
+                    new {
+                        id = orderHeader.Id
+                    });
+            }
         }
 
         public IActionResult OrderConfirmation(int id)
         {
             var order = _db.OrderHeader.Find(id);
 
-            var service = new SessionService();
-            Session session = service.Get(order.SessionId);
-            if (session.PaymentStatus.ToLower() == "paid")
+            if (order.PaymentStatus != SD.PaymentStatusDelayedPayment)
             {
-                order.OrderStatus = SD.StatusApproved;
-                order.PaymentStatus = SD.PaymentStatusApproved;
-                _db.Save();
+                var service = new SessionService();
+                Session session = service.Get(order.SessionId);
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    order.OrderStatus = SD.StatusApproved;
+                    order.PaymentStatus = SD.PaymentStatusApproved;
+                    _db.Save();
+                }
             }
 
             var userId = GetCurrentUserId();
