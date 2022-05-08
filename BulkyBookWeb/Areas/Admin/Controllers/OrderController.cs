@@ -1,5 +1,8 @@
 ﻿using BulkyBook.DataAccess.Repository;
+using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
+using BulkyBook.Utility;
+using System.Linq.Expressions;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -19,9 +22,31 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll(string status)
         {
-            return Json(new { data = _db.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList() });
+            Expression<Func<OrderHeader, bool>> filter = (order) => true;
+
+            switch (status)
+            {
+                case "inprocess":
+                    filter = (order) => order.OrderStatus == SD.StatusInProcess;
+                    break;
+                case "pending":
+                    filter = (order) => order.PaymentStatus == SD.PaymentStatusDelayedPayment;
+                    break;
+                case "completed":
+                    filter = (order) => order.OrderStatus == SD.StatusShipped;
+                    break;
+                case "approved":
+                    filter = (order) => order.OrderStatus == SD.StatusApproved;
+                    break;
+            }
+
+            return Json(new {
+                data = _db.OrderHeader
+                    .Where(filter, includeProperties: "ApplicationUser")
+                    .ToList()
+            });
         }
     }
 }
