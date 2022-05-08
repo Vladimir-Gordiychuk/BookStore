@@ -1,4 +1,8 @@
-﻿@model OrderVm
+﻿@using BulkyBook.Utility
+@model OrderVm
+@{
+	var canEdit = User.IsInRole(SD.RoleAdmin) || User.IsInRole(SD.RoleEmployee);
+}
 
 <form method="post">
 	<br />
@@ -24,84 +28,160 @@
 							<div class="row my-1">
 								<div class="col-3">Name</div>
 								<div class="col-9">
-									<input asp-for="Header.Name" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input asp-for="Header.Name" type="text" class="form-control" />
+										<span asp-validation-for="Header.Name" class="text-danger"></span>
+									}
+									else
+									{
+										<input readonly asp-for="Header.Name" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Phone</div>
 								<div class="col-9">
-									<input asp-for="Header.PhoneNumber" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input asp-for="Header.PhoneNumber" type="text" class="form-control" />
+										<span asp-validation-for="Header.PhoneNumber" class="text-danger"></span>
+									}
+									else
+									{
+										<input readonly asp-for="Header.PhoneNumber" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Address</div>
 								<div class="col-9">
-									<input asp-for="Header.StreetAddress" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input asp-for="Header.StreetAddress" type="text" class="form-control" />
+										<span asp-validation-for="Header.StreetAddress" class="text-danger"></span>
+									}
+									else
+									{
+										<input readonly asp-for="Header.StreetAddress" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">City</div>
 								<div class="col-9">
-									<input asp-for="Header.City" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input asp-for="Header.City" type="text" class="form-control" />
+										<span asp-validation-for="Header.City" class="text-danger"></span>
+									}
+									else
+									{
+										<input readonly asp-for="Header.City" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">State</div>
 								<div class="col-9">
-									<input asp-for="Header.State" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input asp-for="Header.State" type="text" class="form-control" />
+										<span asp-validation-for="Header.State" class="text-danger"></span>
+									}
+									else
+									{
+										<input readonly asp-for="Header.State" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Zip Code</div>
 								<div class="col-9">
-									<input asp-for="Header.PostalCode" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input asp-for="Header.PostalCode" type="text" class="form-control" />
+										<span asp-validation-for="Header.PostalCode" class="text-danger"></span>
+									}
+									else
+									{
+										<input readonly asp-for="Header.PostalCode" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Email</div>
 								<div class="col-9">
-									<input asp-for="Header.ApplicationUser.Email" type="text" class="form-control" readonly />
+									<input readonly asp-for="Header.ApplicationUser.Email" type="text" class="form-control" />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Order Date</div>
 								<div class="col-9">
-									<input asp-for="Header.OrderDate" type="text" class="form-control" readonly />
+									<input readonly value="@Model.Header.OrderDate.ToShortDateString()" type="text" class="form-control" readonly />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Carrier</div>
 								<div class="col-9">
-									<input asp-for="Header.Carrier" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input id="carrier" asp-for="Header.Carrier" type="text" class="form-control" />
+									}
+									else
+									{
+										<input readonly asp-for="Header.Carrier" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Tracking</div>
 								<div class="col-9">
-									<input asp-for="Header.TrackingNumber" type="text" class="form-control" />
+									@if (canEdit)
+									{
+										<input id="trackingNumber" asp-for="Header.TrackingNumber" type="text" class="form-control" />
+									}
+									else
+									{
+										<input readonly asp-for="Header.TrackingNumber" type="text" class="form-control" />
+									}
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Shipping Date</div>
 								<div class="col-9">
-									<input asp-for="Header.ShippingDate" id="shippingDate" type="text" readonly class="form-control" />
+									<input value="@Model.Header.ShippingDate?.ToShortDateString()" type="text" readonly class="form-control" />
 								</div>
 							</div>
+							@if (canEdit)
+							{
+								<div class="row my-1">
+									<div class="col-3">Session ID</div>
+									<div class="col-9">
+										<input asp-for="Header.SessionId" type="text" class="form-control" readonly />
+									</div>
+								</div>
+								<div class="row my-1">
+									<div class="col-3">Payment Intent ID</div>
+									<div class="col-9">
+										<input asp-for="Header.PaymentIntentId" type="text" class="form-control" readonly />
+									</div>
+								</div>
+							}
 							<div class="row my-1">
-								<div class="col-3">Transaction ID</div>
-								<div class="col-9">
-									<input type="text" readonly class="form-control" />
-								</div>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">Payment Due Date</div>
-								<div class="col-9">
-									<input asp-for="Header.PaymentDueDate" readonly class="form-control" />
-								</div>
-								<div class="col-3">Payment Date</div>
-								<div class="col-9">
-									<input asp-for="Header.PaymentDate" readonly class="form-control" />
-								</div>
+								@if (Model.Header.SessionId == null)
+								{
+									<div class="col-3">Payment Due Date</div>
+									<div class="col-9">
+										<input value="@Model.Header.PaymentDueDate?.ToShortDateString()" readonly class="form-control" />
+									</div>
+								}
+								else {
+									<div class="col-3">Payment Date</div>
+									<div class="col-9">
+										<input value="@Model.Header.PaymentDate?.ToShortDateString()" readonly class="form-control" />
+									</div>
+								}
 							</div>
 							<div class="row my-1">
 								<div class="col-3">Payment Status</div>
@@ -122,19 +202,19 @@
 							<ul class="list-group mb-3">
 								@foreach (var detail in Model.Details) {
 
-								<li class="list-group-item d-flex justify-content-between p-2">
-									<div class="row container">
-										<div class="col-8">
+									<li class="list-group-item d-flex justify-content-between p-2">
+										<div class="row container">
+											<div class="col-8">
 
-											<h6 class="my-0 text-primary">@detail.Product.Title</h6>
-											<small class="text-muted">Price : @detail.Price.ToString("c")</small><br />
-											<small class="text-muted">Quantity : @detail.Count</small>
+												<h6 class="my-0 text-primary">@detail.Product.Title</h6>
+												<small class="text-muted">Price : @detail.Price.ToString("c")</small><br />
+												<small class="text-muted">Quantity : @detail.Count</small>
+											</div>
+											<div class="col-4 text-end">
+												<p class="text-success">@((detail.Count * detail.Price).ToString("c"))</p>
+											</div>
 										</div>
-										<div class="col-4">
-											<p class="text-success">@((detail.Count * detail.Price).ToString("c"))</p>
-										</div>
-									</div>
-								</li>
+									</li>
 
 								}
 
@@ -143,7 +223,7 @@
 										<div class="col-6">
 											<h5 class="text-white">TOTAL </h5>
 										</div>
-										<div class="col-6 text-right">
+										<div class="col-6 text-end">
 											<h5 class="text-white">@Model.Header.OrderTotal.ToString("c")</h5>
 										</div>
 									</div>
