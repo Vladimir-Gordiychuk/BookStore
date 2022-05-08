@@ -8,8 +8,8 @@ namespace BulkyBook.Models.ViewModels
 {
     public class OrderVm
     {
-        OrderHeader Header { get; set; }
+        public OrderHeader Header { get; set; }
 
-        List<OrderDetail> Details { get; set; }
+        public List<OrderDetail> Details { get; set; }
     }
 }

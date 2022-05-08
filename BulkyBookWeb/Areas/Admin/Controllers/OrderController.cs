@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using BulkyBook.Models.ViewModels;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -24,6 +25,28 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        public IActionResult Details(int id)
+        {
+            var header = _db.OrderHeader
+                .GetFirstOrDefault(order => order.Id == id, includeProperties: "ApplicationUser");
+
+            if (header == null)
+            {
+                return NotFound();
+            }
+
+            var details = _db.OrderDetail
+                .Where(detail => detail.OrderId == id, includeProperties: "Product");
+
+            var order = new OrderVm
+            {
+                Header = header,
+                Details = details.ToList()
+            };
+
+            return View(order);
         }
 
         [HttpGet]
