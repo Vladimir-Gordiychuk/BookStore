@@ -1,7 +1,9 @@
 ﻿var dataTable;
 
 $(document).ready(function () {
-    loadDataTable();
+    const url = window.location.search;
+    const status = new URLSearchParams(url).get('status');
+    loadDataTable(status);
 });
 
 function yyyymmdd(date) {
@@ -14,10 +16,10 @@ function yyyymmdd(date) {
         ].join('.');
 }
 
-function loadDataTable() {
+function loadDataTable(status) {
     dataTable = $('#orderTable').DataTable({
         "ajax": {
-            "url": "/Admin/Order/GetAll",
+            "url": "/Admin/Order/GetAll?status=" + status,
         },
         "columns": [
             {
