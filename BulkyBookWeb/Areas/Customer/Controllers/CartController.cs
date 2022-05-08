@@ -112,6 +112,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 total += item.Price * item.Count;
             }
 
+            orderHeader.OrderTotal = total;
+
             if (user.CompanyId == null)
             {
                 orderHeader.OrderStatus = SD.StatusPending;
