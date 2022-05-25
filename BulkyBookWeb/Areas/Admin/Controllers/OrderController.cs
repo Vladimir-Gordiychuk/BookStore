@@ -85,6 +85,52 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return RedirectToAction(nameof(Details), new { id = header.Id });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult StartProcessing(OrderVm orderVm)
+        {
+            var order = orderVm.Header;
+            var header = _db.OrderHeader.Find(order.Id);
+
+            if (header == null)
+            {
+                return NotFound();
+            }
+
+            header.OrderStatus = SD.StatusInProcess;
+
+            _db.Save();
+
+            TempData["Success"] = "Order Status updated Successfully";
+
+            return RedirectToAction(nameof(Details), new { id = header.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ShipOrder(OrderVm orderVm)
+        {
+            var order = orderVm.Header;
+            var header = _db.OrderHeader.Find(order.Id);
+
+            if (header == null)
+            {
+                return NotFound();
+            }
+
+            header.TrackingNumber = order.TrackingNumber;
+            header.Carrier = order.Carrier;
+            header.OrderStatus = SD.StatusShipped;
+            header.ShippingDate = DateTime.Now;
+
+            _db.Save();
+
+            TempData["Success"] = "Order Status updated Successfully";
+
+            return RedirectToAction(nameof(Details), new { id = header.Id });
+        }
+
+
         [HttpGet]
         public IActionResult GetAll(string status)
         {

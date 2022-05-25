@@ -234,11 +234,11 @@
 							@if (canEdit) {
 								@if (Model.Header.OrderStatus == SD.StatusApproved)
 								{
-									<input type="submit" class="btn btn-primary form-control my-1" value="Start Processing" />
+									<input type="submit" asp-action="StartProcessing" class="btn btn-primary form-control my-1" value="Start Processing" />
 								}
 								@if (Model.Header.OrderStatus == SD.StatusInProcess)
 								{
-									<input type="submit" class="btn btn-primary form-control my-1" value="Ship Order" />
+									<input type="submit" asp-action="ShipOrder" onclick="return ValidateInput()" class="btn btn-primary form-control my-1" value="Ship Order" />
 								}
 								@if (
 									Model.Header.PaymentStatus == SD.PaymentStatusDelayedPayment &&
@@ -263,3 +263,27 @@
 	</div>
 </form>
 
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+    function ValidateInput() {
+            if (document.getElementById("trackingNumber").value == "") {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: 'Please specify Tracking Number.',
+                })
+                return false;
+            }
+            if (document.getElementById("carrier").value == "") {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: 'Please specify Carrier.',
+                })
+                return false;
+            }
+            return true;
+        }
+</script>
+}
