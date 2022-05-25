@@ -49,6 +49,42 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return View(order);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Details(OrderVm orderVm)
+        {
+            var order = orderVm.Header;
+            var header = _db.OrderHeader.Find(order.Id);
+
+            if (header == null)
+            {
+                return NotFound();
+            }
+
+            header.Name = order.Name;
+            header.PhoneNumber = order.PhoneNumber;
+            header.StreetAddress = order.StreetAddress;
+            header.City = order.City;
+            header.State = order.State;
+            header.PostalCode = order.PostalCode;
+
+            if (order.Carrier != null)
+            {
+                header.Carrier = order.Carrier;
+            }
+
+            if (order.TrackingNumber != null)
+            {
+                header.TrackingNumber = order.TrackingNumber;
+            }
+
+            _db.Save();
+
+            TempData["Success"] = "Order Details updated Successfully";
+
+            return RedirectToAction(nameof(Details), new { id = header.Id });
+        }
+
         [HttpGet]
         public IActionResult GetAll(string status)
         {
