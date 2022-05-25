@@ -50,9 +50,13 @@ namespace BulkyBook.DataAccess.Repository
             return query;
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool trackChanges = true)
         {
             IQueryable<T> query = _set;
+            if (!trackChanges)
+            {
+                query = query.AsNoTracking();
+            }
             if (includeProperties != null)
             {
                 foreach (var property in includeProperties.Split(",", StringSplitOptions.RemoveEmptyEntries))

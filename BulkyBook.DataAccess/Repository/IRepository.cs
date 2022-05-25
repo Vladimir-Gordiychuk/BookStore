@@ -20,7 +20,7 @@ namespace BulkyBook.DataAccess.Repository
         /// <param name="filter">Lambda expression used to filter records.</param>
         /// <param name="includeProperties">A string containing navigation property names separated with ',' (coma).</param>
         /// <returns></returns>
-        T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null);
+        T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool trackChanges = true);
 
         void Add(T item);
 
