@@ -1,10 +1,13 @@
 ﻿using BulkyBook.DataAccess.Repository;
 using BulkyBook.Models;
+using BulkyBook.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyBookWeb.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.RoleAdmin)]
     public class CategoryController : Controller
     {
         const string TempDataSuccess = "success";
