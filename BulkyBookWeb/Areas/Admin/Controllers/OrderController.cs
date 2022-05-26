@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using BulkyBook.Models.ViewModels;
+using Stripe;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -51,6 +52,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.RoleAdmin + "," + SD.RoleEmployee)]
         public IActionResult Details(OrderVm orderVm)
         {
             var order = orderVm.Header;
@@ -87,6 +89,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.RoleAdmin + "," + SD.RoleEmployee)]
         public IActionResult StartProcessing(OrderVm orderVm)
         {
             var order = orderVm.Header;
@@ -108,6 +111,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.RoleAdmin + "," + SD.RoleEmployee)]
         public IActionResult ShipOrder(OrderVm orderVm)
         {
             var order = orderVm.Header;
@@ -130,6 +134,45 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return RedirectToAction(nameof(Details), new { id = header.Id });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.RoleAdmin + "," + SD.RoleEmployee)]
+        public IActionResult CancelOrder(OrderVm orderVm)
+        {
+            var order = orderVm.Header;
+            var header = _db.OrderHeader.Find(order.Id);
+
+            if (header == null)
+            {
+                return NotFound();
+            }
+
+            if (header.PaymentStatus == SD.PaymentStatusApproved)
+            {
+                var options = new RefundCreateOptions
+                {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = header.PaymentIntentId
+                };
+
+                var service = new RefundService();
+                Refund refund = service.Create(options);
+
+                header.OrderStatus = SD.StatusCancelled;
+                header.PaymentStatus = SD.StatusRefunded;
+            }
+            else
+            {
+                header.OrderStatus = SD.StatusCancelled;
+                header.PaymentStatus = SD.StatusCancelled;
+            }
+
+            _db.Save();
+
+            TempData["Success"] = "Order Cancelled Successfully";
+
+            return RedirectToAction(nameof(Details), new { id = header.Id });
+        }
 
         [HttpGet]
         public IActionResult GetAll(string status)
