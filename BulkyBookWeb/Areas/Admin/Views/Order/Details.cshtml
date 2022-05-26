@@ -243,7 +243,8 @@
 								}
 								@if (
 									Model.Header.OrderStatus != SD.StatusRefunded &&
-									Model.Header.OrderStatus != SD.StatusCancelled
+									Model.Header.OrderStatus != SD.StatusCancelled &&
+									Model.Header.OrderStatus != SD.StatusShipped
 									)
 								{
 									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
