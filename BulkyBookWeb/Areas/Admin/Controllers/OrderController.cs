@@ -127,6 +127,11 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             header.OrderStatus = SD.StatusShipped;
             header.ShippingDate = DateTime.Now;
 
+            if (header.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                header.PaymentDueDate = DateTime.Now.AddDays(30);
+            }
+
             _db.Save();
 
             TempData["Success"] = "Order Status updated Successfully";
