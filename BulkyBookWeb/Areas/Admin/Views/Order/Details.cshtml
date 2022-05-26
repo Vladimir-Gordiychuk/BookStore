@@ -232,7 +232,6 @@
 									</div>
 								</li>
 							</ul>
-
 							@if (canEdit) {
 								@if (Model.Header.OrderStatus == SD.StatusApproved)
 								{
@@ -243,19 +242,19 @@
 									<input type="submit" asp-action="ShipOrder" onclick="return ValidateInput()" class="btn btn-primary form-control my-1" value="Ship Order" />
 								}
 								@if (
-									Model.Header.PaymentStatus == SD.PaymentStatusDelayedPayment &&
-									Model.Header.OrderStatus == SD.StatusShipped
-									)
-								{
-									<input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
-								}
-								@if (
 									Model.Header.OrderStatus != SD.StatusRefunded &&
 									Model.Header.OrderStatus != SD.StatusCancelled
 									)
 								{
 									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
 								}
+							}
+							@if (
+								Model.Header.PaymentStatus == SD.PaymentStatusDelayedPayment &&
+								Model.Header.OrderStatus == SD.StatusShipped
+								)
+							{
+								<input type="submit" asp-action="PayNow" class="btn btn-success form-control my-1" value="Pay Now" />
 							}
 						</div>
 					</div>

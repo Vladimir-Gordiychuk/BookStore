@@ -9,6 +9,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using BulkyBook.Models.ViewModels;
 using Stripe;
+using Stripe.Checkout;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -177,6 +178,78 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             TempData["Success"] = "Order Cancelled Successfully";
 
             return RedirectToAction(nameof(Details), new { id = header.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = SD.RoleCustomerCompany)]
+        public IActionResult PayNow(OrderVm orderVm)
+        {
+            var orderHeader = _db.OrderHeader.Find(orderVm.Header.Id);
+
+            if (orderHeader == null)
+            {
+                return NotFound();
+            }
+
+            var items = _db.OrderDetail.Where(item => item.OrderId == orderHeader.Id, nameof(OrderDetail.Product));
+
+            var domain = "https://localhost:44306/";
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string>
+                {
+                    "card"
+                },
+                LineItems = items.Select(item =>
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(item.Price * 100.0),
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = item.Product.Title,
+                            },
+                        },
+                        Quantity = item.Count,
+                    }).ToList(),
+                Mode = "payment",
+                SuccessUrl = domain + $"Admin/Order/{nameof(PaymentConfirmation)}?id={orderHeader.Id}",
+                CancelUrl = domain + $"Admin/Order/{nameof(Details)}?id={orderHeader.Id}",
+            };
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+
+            orderHeader.SessionId = session.Id;
+            orderHeader.PaymentIntentId = session.PaymentIntentId;
+
+            _db.Save();
+
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+        }
+
+        public IActionResult PaymentConfirmation(int id)
+        {
+            var order = _db.OrderHeader.Find(id);
+
+            Debug.Assert(order.PaymentStatus == SD.PaymentStatusDelayedPayment);
+
+            var service = new SessionService();
+            Session session = service.Get(order.SessionId);
+            if (session.PaymentStatus.ToLower() == "paid")
+            {
+                order.PaymentStatus = SD.PaymentStatusApproved;
+                order.PaymentDate = DateTime.Now;
+                _db.Save();
+            }
+
+            TempData["Success"] = "Payment Accepted";
+
+            return View(id);
         }
 
         [HttpGet]
