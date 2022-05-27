@@ -9,8 +9,14 @@ using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<StripeKeys>(builder.Configuration.GetSection(StripeKeys.Section));
+builder.Services.AddSingleton<GoogleKeys>(
+    new GoogleKeys
+    {
+        Email = builder.Configuration["Google:Email"],
+        Password = builder.Configuration["Google:Password"]
+    });
 
-builder.Services.AddSingleton<IEmailSender, DummyEmailSender>();
+builder.Services.AddSingleton<IEmailSender, MailKitSmtpEmailSender>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
