@@ -150,19 +150,21 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             }
             _db.Save();
 
+            var domain = "https://localhost:44306/";
+
             if (user.EmailConfirmed)
             {
                 _emailSender.SendEmailAsync(
                     user.Email,
                     $"New order #{orderHeader.Id} - Bulky Book",
-                    $"<p>Your <a href=\"Order/Details/{orderHeader.Id}\">order</a> is approved.</p>");
+                    $"<p>Your <a href=\"{domain}Admin/Order/Details/{orderHeader.Id}\">order</a> is approved.</p>");
             }
 
             if (user.CompanyId == null)
             {
                 // Individual user processing.
 
-                var domain = "https://localhost:44306/";
+                
                 var options = new SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string>
