@@ -3,8 +3,8 @@ using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Stripe.Checkout;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -16,10 +16,12 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
     public class CartController : Controller
     {
         readonly IUnitOfWork _db;
+        readonly IEmailSender _emailSender;
 
-        public CartController(IUnitOfWork db, IOptions<StripeKeys> options)
+        public CartController(IUnitOfWork db, IEmailSender sender)
         {
             _db = db;
+            _emailSender = sender;
         }
         
         public IActionResult Index()
@@ -147,6 +149,14 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 });
             }
             _db.Save();
+
+            if (user.EmailConfirmed)
+            {
+                _emailSender.SendEmailAsync(
+                    user.Email,
+                    $"New order #{orderHeader.Id} - Bulky Book",
+                    $"<p>Your <a href=\"Order/Details/{orderHeader.Id}\">order</a> is approved.</p>");
+            }
 
             if (user.CompanyId == null)
             {

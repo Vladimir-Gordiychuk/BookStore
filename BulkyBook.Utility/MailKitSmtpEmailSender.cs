@@ -1,5 +1,6 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace BulkyBook.Utility
@@ -8,9 +9,9 @@ namespace BulkyBook.Utility
     {
         readonly GoogleKeys _keys;
 
-        public MailKitSmtpEmailSender(GoogleKeys keys)
+        public MailKitSmtpEmailSender(IOptions<GoogleKeys> keys)
         {
-            _keys = keys;
+            _keys = keys.Value;
         }
 
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
