@@ -9,9 +9,10 @@ using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<StripeKeys>(builder.Configuration.GetSection(StripeKeys.Section));
-builder.Services.Configure<GoogleKeys>(builder.Configuration.GetSection(GoogleKeys.Section));
+builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection(SmtpConfig.Section));
+builder.Services.Configure<SendGridConfig>(builder.Configuration.GetSection(SendGridConfig.Section));
 
-builder.Services.AddSingleton<IEmailSender, MailKitSmtpEmailSender>();
+builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
