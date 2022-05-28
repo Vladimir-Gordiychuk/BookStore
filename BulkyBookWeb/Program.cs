@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BulkyBook.Utility;
 using Stripe;
+using BulkyBookWeb.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<StripeKeys>(builder.Configuration.GetSection(StripeKeys.Section));
 builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection(SmtpConfig.Section));
 builder.Services.Configure<SendGridConfig>(builder.Configuration.GetSection(SendGridConfig.Section));
+builder.Services.Configure<FacebookConfig>(builder.Configuration.GetSection(FacebookConfig.Section));
 
 builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
@@ -21,15 +23,25 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 builder.Services
     .AddIdentity<IdentityUser, IdentityRole>()
     .AddDefaultTokenProviders()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultUI();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddRazorPages();
+
+builder.Services.AddAuthentication().AddFacebook(
+    options =>
+    {
+        var config = builder.Configuration.GetSection(FacebookConfig.Section).Get<FacebookConfig>();
+        options.AppId = config.AppId;
+        options.AppSecret = config.AppSecret;
+    }
+);
+
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
