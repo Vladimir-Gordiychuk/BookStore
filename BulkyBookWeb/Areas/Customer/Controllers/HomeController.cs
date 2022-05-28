@@ -1,6 +1,7 @@
 ﻿using BulkyBook.DataAccess.Repository;
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
+using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -90,6 +91,12 @@ namespace BulkyBookWeb.Controllers
             }
 
             _db.Save();
+
+            var itemCount = _db.ShoppingCart
+                .Where(record => record.ApplicationUserId == cart.ApplicationUserId)
+                .Sum(record => record.Count);
+
+            HttpContext.Session.SetInt32(SD.SessionCart, itemCount);
 
             return RedirectToAction(nameof(Index));
         }

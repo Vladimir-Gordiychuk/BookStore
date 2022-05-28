@@ -1,4 +1,6 @@
-﻿@using BulkyBook.Utility
+﻿@using Microsoft.AspNetCore.Http
+@using BulkyBook.Utility
+@inject IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,7 +50,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-                                <i class="bi bi-cart"></i>
+                                @await Component.InvokeAsync("ShoppingCart")
                             </a>
                         </li>
 

@@ -234,6 +234,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             _db.Save();
 
+            UpdateSessionCart(userId);
+
             return View(id);
         }
 
@@ -246,6 +248,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             targetCart.Count += 1;
 
             _db.Save();
+
+            UpdateSessionCart(targetCart.ApplicationUserId);
 
             return RedirectToAction(nameof(Index));
         }
@@ -267,6 +271,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             _db.Save();
 
+            UpdateSessionCart(targetCart.ApplicationUserId);
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -279,6 +285,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             _db.ShoppingCart.Remove(targetCart);
  
             _db.Save();
+
+            UpdateSessionCart(targetCart.ApplicationUserId);
 
             return RedirectToAction(nameof(Index));
         }
@@ -299,6 +307,15 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             Debug.Assert(claim != null, "All valid users are supposed to have an Id.");
             return claim.Value;
+        }
+
+        private void UpdateSessionCart(string userId)
+        {
+            var itemCount = _db.ShoppingCart
+                .Where(record => record.ApplicationUserId == userId)
+                .Sum(record => record.Count);
+
+            HttpContext.Session.SetInt32(SD.SessionCart, itemCount);
         }
 
 
