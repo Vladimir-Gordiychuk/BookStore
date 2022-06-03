@@ -1,8 +1,9 @@
-﻿using BulkyBook.DataAccess.Repository;
+﻿using BulkyBook.Config;
 using BulkyBook.Models;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace BulkyBook.DataAccess.DbInitializer
 {
@@ -11,15 +12,18 @@ namespace BulkyBook.DataAccess.DbInitializer
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _db;
+        private readonly AdminConfig _config;
 
         public DbInitializer(
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext db)
+            ApplicationDbContext db,
+            IOptions<AdminConfig> config)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _db = db;
+            _config = config.Value;
         }
 
         public void Initialize()
@@ -45,17 +49,17 @@ namespace BulkyBook.DataAccess.DbInitializer
 
                 var admin = new ApplicationUser()
                 {
-                    UserName = "admin@bulkybook.com",
-                    Email = "admin@bulkybook.com",
-                    Name = "Admin",
-                    PhoneNumber = "987654321",
+                    UserName = _config.Login,
+                    Email = _config.Email,
+                    Name = _config.Name,
+                    PhoneNumber = "",
                     StreetAddress = "",
-                    City = "Kiev",
-                    State = "Ukraine",
-                    PostalCode = "54321",
+                    City = "",
+                    State = "",
+                    PostalCode = "",
                 };
 
-                _userManager.CreateAsync(admin, "Admin@123").GetAwaiter().GetResult();
+                _userManager.CreateAsync(admin, _config.Password).GetAwaiter().GetResult();
 
                 var user = _db.Users.FirstOrDefault(record => record.Email == admin.Email);
 

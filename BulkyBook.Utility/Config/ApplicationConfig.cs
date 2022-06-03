@@ -1,4 +1,4 @@
-﻿namespace BulkyBookWeb.Config
+﻿namespace BulkyBook.Config
 {
     public class ApplicationConfig
     {

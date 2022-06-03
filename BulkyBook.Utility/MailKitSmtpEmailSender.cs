@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Smtp;
+﻿using BulkyBook.Config;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;

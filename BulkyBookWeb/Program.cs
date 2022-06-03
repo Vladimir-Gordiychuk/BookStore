@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BulkyBook.Utility;
 using Stripe;
-using BulkyBookWeb.Config;
+using BulkyBook.Config;
 using BulkyBook.DataAccess.DbInitializer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<ApplicationConfig>(builder.Configuration.GetSection(ApplicationConfig.Section));
+builder.Services.Configure<AdminConfig>(builder.Configuration.GetSection(AdminConfig.Section));
 builder.Services.Configure<StripeKeys>(builder.Configuration.GetSection(StripeKeys.Section));
 builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection(SmtpConfig.Section));
 builder.Services.Configure<SendGridConfig>(builder.Configuration.GetSection(SendGridConfig.Section));
