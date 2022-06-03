@@ -3,3 +3,5 @@
 */obj/
 
 BulkyBookWeb/wwwroot/images/products/
+BulkyBookWeb/Properties/PublishProfiles/
+BulkyBookWeb/Properties/ServiceDependencies/Bulky - Web Deploy/profile.arm.json
