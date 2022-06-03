@@ -185,6 +185,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return "/image/" + newImage.Id;
         }
 
+        [AllowAnonymous]
         [Route("image/{id}")]
         public IActionResult Image(int id)
         {
