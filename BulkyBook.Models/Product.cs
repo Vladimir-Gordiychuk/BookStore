@@ -50,7 +50,7 @@ namespace BulkyBook.Models
         /// (image Id is enough to generate a valid image url).
         /// </summary>
         [ValidateNever]
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         [Display(Name = "Image")]
         public int? ImageId { get; set; }
