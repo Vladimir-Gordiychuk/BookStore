@@ -28,5 +28,7 @@ namespace BulkyBook.DataAccess
 
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
+        public DbSet<Image> Images { get; set; }
+
     }
 }

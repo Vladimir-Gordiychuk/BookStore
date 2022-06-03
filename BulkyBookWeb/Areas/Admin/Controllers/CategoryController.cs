@@ -10,8 +10,6 @@ namespace BulkyBookWeb.Controllers
     [Authorize(Roles = SD.RoleAdmin)]
     public class CategoryController : Controller
     {
-        const string TempDataSuccess = "success";
-
         readonly IUnitOfWork _db;
 
         public CategoryController(IUnitOfWork db)
@@ -49,7 +47,7 @@ namespace BulkyBookWeb.Controllers
 
             _db.Save();
 
-            TempData[TempDataSuccess] = $"New category '{category.Name}' created.";
+            TempData[SD.TempDataSuccess] = $"New category '{category.Name}' created.";
 
             return RedirectToAction("Index");
         }
@@ -90,7 +88,7 @@ namespace BulkyBookWeb.Controllers
 
             _db.Save();
 
-            TempData[TempDataSuccess] = $"Category '{category.Name}' updated.";
+            TempData[SD.TempDataSuccess] = $"Category '{category.Name}' updated.";
 
             return RedirectToAction("Index");
         }
@@ -116,7 +114,7 @@ namespace BulkyBookWeb.Controllers
                 _db.Category.Remove(target);
                 _db.Save();
 
-                TempData[TempDataSuccess] = $"Category '{target.Name}' deleted.";
+                TempData[SD.TempDataSuccess] = $"Category '{target.Name}' deleted.";
             }
 
             return RedirectToAction("Index");

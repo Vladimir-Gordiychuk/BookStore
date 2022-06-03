@@ -1,16 +1,17 @@
-﻿@if (TempData["success"] != null)
+﻿@using BulkyBook.Utility
+
+@if (TempData[SD.TempDataError] != null)
 {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.success('@TempData["success"]');
+        toastr.error('@TempData[SD.TempDataError]');
     </script>
-}
-@if (TempData["error"] != null)
+} else if (TempData[SD.TempDataSuccess] != null)
 {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.error('@TempData["error"]'');
+        toastr.success('@TempData[SD.TempDataSuccess]');
     </script>
 }

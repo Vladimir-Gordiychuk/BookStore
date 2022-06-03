@@ -45,8 +45,18 @@ namespace BulkyBook.Models
         [Display(Name = "Price for 100+")]
         public double Price100 { get; set; }
 
+        /// <summary>
+        /// This is a bit redundant property
+        /// (image Id is enough to generate a valid image url).
+        /// </summary>
         [ValidateNever]
         public string ImageUrl { get; set; }
+
+        [Display(Name = "Image")]
+        public int? ImageId { get; set; }
+
+        [ValidateNever]
+        public Image Image { get; set; }
 
         [Required]
         [Display(Name = "Category")]

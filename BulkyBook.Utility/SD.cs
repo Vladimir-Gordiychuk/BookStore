@@ -11,6 +11,9 @@ namespace BulkyBook.Utility
     /// </summary>
     public static class SD
     {
+        public const string TempDataError = "error";
+        public const string TempDataSuccess = "success";
+
         public const string RoleCustomerIdividual = "Individual";
         public const string RoleCustomerCompany = "Company";
         public const string RoleAdmin = "Admin";

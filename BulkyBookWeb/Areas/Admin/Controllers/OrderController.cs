@@ -83,7 +83,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
             _db.Save();
 
-            TempData["Success"] = "Order Details updated Successfully";
+            TempData[SD.TempDataSuccess] = "Order Details updated Successfully";
 
             return RedirectToAction(nameof(Details), new { id = header.Id });
         }
@@ -105,7 +105,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
             _db.Save();
 
-            TempData["Success"] = "Order Status updated Successfully";
+            TempData[SD.TempDataSuccess] = "Order Status updated Successfully";
 
             return RedirectToAction(nameof(Details), new { id = header.Id });
         }
@@ -135,7 +135,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
             _db.Save();
 
-            TempData["Success"] = "Order Status updated Successfully";
+            TempData[SD.TempDataSuccess] = "Order Status updated Successfully";
 
             return RedirectToAction(nameof(Details), new { id = header.Id });
         }
@@ -175,7 +175,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
             _db.Save();
 
-            TempData["Success"] = "Order Cancelled Successfully";
+            TempData[SD.TempDataSuccess] = "Order Cancelled Successfully";
 
             return RedirectToAction(nameof(Details), new { id = header.Id });
         }
@@ -247,7 +247,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 _db.Save();
             }
 
-            TempData["Success"] = "Payment Accepted";
+            TempData[SD.TempDataSuccess] = "Payment Accepted";
 
             return View(id);
         }

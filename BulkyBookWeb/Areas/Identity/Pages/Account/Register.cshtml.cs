@@ -201,7 +201,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                         // There is no need to confirm email or sign in as a new user
                         // if Admin creates a new user.
 
-                        TempData["success"] = "User created.";
+                        TempData[SD.TempDataSuccess] = "User created.";
                         return LocalRedirect(returnUrl);
                     }
                     else

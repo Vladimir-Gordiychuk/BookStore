@@ -2,8 +2,10 @@
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
+using BulkyBookWeb.Config;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -11,15 +13,17 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
     [Authorize(Roles = SD.RoleAdmin)]
     public class ProductController : Controller
     {
+        public const string ImageSizeLimit = "ImageSizeLimit";
+
         const int CreateProductId = 0;
 
         readonly IUnitOfWork _db;
-        readonly IWebHostEnvironment _hostEnvironment;
+        int _imageSizeLimit;
 
-        public ProductController(IUnitOfWork db, IWebHostEnvironment hostEnvironment)
+        public ProductController(IUnitOfWork db, IOptions<ApplicationConfig> config)
         {
             _db = db;
-            _hostEnvironment = hostEnvironment;
+            _imageSizeLimit = config.Value.ImageSizeLimit;
         }
 
         public IActionResult Index()
@@ -58,78 +62,138 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         public IActionResult Edit(ProductViewModel viewModel, IFormFile? file)
         {
             if (!ModelState.IsValid)
-                return View(viewModel);
-
-            
-            if (file != null)
             {
-                // todo: For security reasons it would be better
-                // to request existing ImageUrl from database. 
-
-                FileInfo fileInfo = GetImagePath(viewModel, file);
-                using (var fileStream = fileInfo.Open(FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    file.CopyTo(fileStream);
-                }
-                viewModel.Product.ImageUrl = @"\images\products\" + fileInfo.Name;
+                viewModel.Categories = _db.Category.GetAll().ToList();
+                viewModel.CoverTypes = _db.CoverType.GetAll().ToList();
+                return View(viewModel);
             }
 
-            if (viewModel.Product.Id == CreateProductId)
+            var product = viewModel.Product;
+
+            if (product.Id == CreateProductId)
             {
                 // create new product
-                _db.Product.Add(viewModel.Product);
+                _db.Product.Add(product);
                 _db.Save();
 
-                TempData["success"] = $"Product '{viewModel.Product.Title}' updated successfully.";
+                TempData[SD.TempDataSuccess] = $"Product '{product.Title}' created successfully.";
             }
             else
             {
                 // update existing product
-                _db.Product.Update(viewModel.Product);
+                var target = _db.Product.Find(product.Id);
+                if (target is null)
+                {
+                    return NotFound();
+                }
+
+                target.Title = product.Title;
+                target.ISBN = product.ISBN;
+                target.ListPrice = product.ListPrice;
+                target.Price = product.Price;
+                target.Price50 = product.Price50;
+                target.Price100 = product.Price100;
+                target.CategoryId = product.CategoryId;
+                target.CoverTypeId = product.CoverTypeId;
+
                 _db.Save();
 
-                TempData["success"] = $"Product '{viewModel.Product.Title}' updated successfully.";
+                TempData[SD.TempDataSuccess] = $"Product '{viewModel.Product.Title}' updated successfully.";
+            }
+
+            if (file != null)
+            {
+                if (file.Length > _imageSizeLimit)
+                {
+                    TempData[SD.TempDataError] = "Image size is too big.";
+                    viewModel.Categories = _db.Category.GetAll().ToList();
+                    viewModel.CoverTypes = _db.CoverType.GetAll().ToList();
+                    return View(viewModel);
+                }
+
+                UpdateProductImage(viewModel.Product.Id, file);
             }
 
             return RedirectToAction("Index");
         }
 
-        private FileInfo GetImagePath(ProductViewModel viewModel, IFormFile? file)
+        /// <summary>
+        /// Upload image for specified product.
+        /// </summary>
+        /// <param name="productId">Existing product id.</param>
+        /// <param name="file">New image. If null - method returns immediately.</param>
+        private void UpdateProductImage(int productId, IFormFile file)
         {
-            FileInfo fileInfo;
-            if (viewModel.Product.ImageUrl != null)
+            if (file is null)
             {
-                // Product already exists in a database and has an image.
-                fileInfo = GetImagePath(viewModel.Product.ImageUrl);
+                throw new ArgumentNullException(nameof(file));
+            }
+
+            if (file.Length > _imageSizeLimit)
+            {
+                throw new ArgumentException("Image size is too big.", nameof(file));
+            }
+
+            var product = _db.Product.Find(productId);
+            if (product is null)
+            {
+                throw new ArgumentException("Invalid product id.", nameof(productId));
+            }
+
+            var newImage = new Image
+            {
+                ContentType = file.ContentType,
+                Extension = Path.GetExtension(file.FileName)
+            };
+
+            using (var stream = new MemoryStream((int)file.Length))
+            {
+                file.CopyTo(stream);
+                newImage.Content = stream.ToArray();
+            }
+
+            Image existingImage = null;
+            if (product.ImageId != null && product.ImageId != 0)
+            {
+                existingImage = _db.Image.Find(product.ImageId.Value);
+            }
+
+            if (existingImage is null)
+            {
+                // create new image
+
+                _db.Image.Add(newImage);
+                _db.Save(); // this save method is required to get image id.
+
+                product.ImageId = newImage.Id;
+                product.ImageUrl = GetImageUrl(newImage);
             }
             else
             {
-                fileInfo = GenerateImagePath(Path.GetExtension(file.FileName));
+                // update existing image
+
+                existingImage.Content = newImage.Content;
+
+                // Db.Save() is not called, because it will called later on.
             }
 
-            return fileInfo;
+            _db.Save();
         }
 
-        private FileInfo GetImagePath(string imageUrl)
+        private static string GetImageUrl(Image newImage)
         {
-            string wwwRootPath = _hostEnvironment.WebRootPath;
-
-            var fileName = Path.GetFileNameWithoutExtension(imageUrl);
-            var extension = Path.GetExtension(imageUrl);
-            var uploads = Path.Combine(wwwRootPath, @"images\products");
-
-            var filePath = Path.Combine(uploads, fileName + extension);
-            return new FileInfo(filePath);
+            return "/image/" + newImage.Id;
         }
 
-        private FileInfo GenerateImagePath(string extension)
+        [Route("image/{id}")]
+        public IActionResult Image(int id)
         {
-            string wwwRootPath = _hostEnvironment.WebRootPath;
+            var image = _db.Image.Find(id);
 
-            var fileName = Guid.NewGuid().ToString();
-            var uploads = Path.Combine(wwwRootPath, @"images\products");
-            var filePath = Path.Combine(uploads, fileName + extension);
-            return new FileInfo(filePath);
+            if (image == null)
+                return NotFound();
+
+            return File(image.Content, image.ContentType);
         }
 
         [HttpGet]
@@ -141,7 +205,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         [HttpDelete]
         public IActionResult Delete(int id)
         {
-            var target = _db.Product.Find(id);
+            Product target = _db.Product.Find(id);
             if (target == null)
             {
                 return Json(new
@@ -151,8 +215,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 });
             }
 
-            var imageFile = GetImagePath(target.ImageUrl);
-            imageFile.Delete();
+            RemoveProductImage(target);
 
             _db.Product.Remove(target);
             _db.Save();
@@ -164,5 +227,16 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             });
         }
 
+        private void RemoveProductImage(Product product)
+        {
+            if (product.ImageId.HasValue)
+            {
+                var image = _db.Image.Find(product.ImageId.Value);
+                if (image != null)
+                {
+                    _db.Image.Remove(image);
+                }
+            }
+        }
     }
 }

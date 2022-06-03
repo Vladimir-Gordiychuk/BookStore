@@ -40,7 +40,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             _db.CoverType.Add(coverType);
             _db.Save();
 
-            TempData["success"] = $"Cover Type '{coverType.Name}' created successfully.";
+            TempData[SD.TempDataSuccess] = $"Cover Type '{coverType.Name}' created successfully.";
 
             return RedirectToAction("Index");
         }
@@ -74,7 +74,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             _db.CoverType.Update(target);
             _db.Save();
 
-            TempData["success"] = $"Cover Type '{target.Name}' updated successfully.";
+            TempData[SD.TempDataSuccess] = $"Cover Type '{target.Name}' updated successfully.";
 
             return RedirectToAction("Index");
         }
@@ -104,7 +104,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             _db.CoverType.Remove(target);
             _db.Save();
 
-            TempData["success"] = $"Cover Type '{target.Name}' removed successfully.";
+            TempData[SD.TempDataSuccess] = $"Cover Type '{target.Name}' removed successfully.";
 
             return RedirectToAction("Index");
         }

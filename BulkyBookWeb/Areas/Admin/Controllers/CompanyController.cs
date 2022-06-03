@@ -57,7 +57,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 _db.Company.Add(company);
                 _db.Save();
 
-                TempData["success"] = $"Company '{company.Name}' updated successfully.";
+                TempData[SD.TempDataSuccess] = $"Company '{company.Name}' updated successfully.";
             }
             else
             {
@@ -65,7 +65,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 _db.Company.Update(company);
                 _db.Save();
 
-                TempData["success"] = $"Company '{company.Name}' updated successfully.";
+                TempData[SD.TempDataSuccess] = $"Company '{company.Name}' updated successfully.";
             }
 
             return RedirectToAction("Index");

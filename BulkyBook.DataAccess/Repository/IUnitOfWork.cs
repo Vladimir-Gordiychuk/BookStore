@@ -24,6 +24,8 @@ namespace BulkyBook.DataAccess.Repository
 
         IOrderDetailRepository OrderDetail { get; }
 
+        IImageRepository Image { get; }
+
         void Save();
     }
 }
