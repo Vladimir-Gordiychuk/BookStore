@@ -22,3 +22,10 @@ https://datatables.net/
 
 Trix Reach Text Editor
 https://trix-editor.org/
+
+Stripe for Payments
+https://stripe.com/
+
+SendGrid & MailKit for Mail Sender
+https://sendgrid.com/
+
