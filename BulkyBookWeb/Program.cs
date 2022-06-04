@@ -17,7 +17,7 @@ builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection(SmtpConf
 builder.Services.Configure<SendGridConfig>(builder.Configuration.GetSection(SendGridConfig.Section));
 builder.Services.Configure<FacebookConfig>(builder.Configuration.GetSection(FacebookConfig.Section));
 
-switch (builder.Configuration["Admin:EmailSender"])
+switch (builder.Configuration[$"{ApplicationConfig.Section}:{nameof(ApplicationConfig.EmailSender)}"])
 {
     case nameof(SendGridEmailSender):
         builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();

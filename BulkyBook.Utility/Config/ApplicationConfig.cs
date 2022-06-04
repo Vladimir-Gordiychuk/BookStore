@@ -5,5 +5,7 @@
         public const string Section = "Application";
 
         public int ImageSizeLimit { get; set; }
+
+        public string EmailSender { get; set; }
     }
 }
