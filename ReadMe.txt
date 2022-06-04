@@ -22,3 +22,9 @@ https://datatables.net/
 
 Tiny Reach Text Editor
 https://www.tiny.cloud/
+
+Stripe for Payments
+https://stripe.com/
+
+SendGrid & MailKit for Mail Sender
+https://sendgrid.com/
