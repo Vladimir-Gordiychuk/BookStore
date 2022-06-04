@@ -86,8 +86,9 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 {
                     return NotFound();
                 }
-
+                
                 target.Title = product.Title;
+                target.Description = product.Description;
                 target.ISBN = product.ISBN;
                 target.ListPrice = product.ListPrice;
                 target.Price = product.Price;
