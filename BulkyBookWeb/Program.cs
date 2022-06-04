@@ -17,7 +17,18 @@ builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection(SmtpConf
 builder.Services.Configure<SendGridConfig>(builder.Configuration.GetSection(SendGridConfig.Section));
 builder.Services.Configure<FacebookConfig>(builder.Configuration.GetSection(FacebookConfig.Section));
 
-builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+switch (builder.Configuration["Admin:EmailSender"])
+{
+    case nameof(SendGridEmailSender):
+        builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+        break;
+    case nameof(MailKitSmtpEmailSender):
+        builder.Services.AddSingleton<IEmailSender, MailKitSmtpEmailSender>();
+        break;
+    default:
+        builder.Services.AddSingleton<IEmailSender, DummyEmailSender>();
+        break;
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
@@ -90,6 +101,8 @@ app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
+
+app.Logger.Log(LogLevel.Information, $"Email Sender : {app.Services.GetService<IEmailSender>()?.GetType().FullName}");
 
 app.Run();
 
