@@ -194,7 +194,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
             var items = _db.OrderDetail.Where(item => item.OrderId == orderHeader.Id, nameof(OrderDetail.Product));
 
-            var domain = "https://localhost:44306/";
+            var domain = $"https://{HttpContext.Request.Host}/";
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string>

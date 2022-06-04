@@ -150,7 +150,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             }
             _db.Save();
 
-            var domain = "https://localhost:44306/";
+            var domain = $"https://{HttpContext.Request.Host}/"; ;
 
             if (user.EmailConfirmed)
             {
