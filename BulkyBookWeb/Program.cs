@@ -15,6 +15,7 @@ builder.Services.Configure<AdminConfig>(builder.Configuration.GetSection(AdminCo
 builder.Services.Configure<StripeKeys>(builder.Configuration.GetSection(StripeKeys.Section));
 builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection(SmtpConfig.Section));
 builder.Services.Configure<SendGridConfig>(builder.Configuration.GetSection(SendGridConfig.Section));
+builder.Services.Configure<GoogleConfig>(builder.Configuration.GetSection(GoogleConfig.Section));
 builder.Services.Configure<FacebookConfig>(builder.Configuration.GetSection(FacebookConfig.Section));
 
 switch (builder.Configuration[$"{ApplicationConfig.Section}:{nameof(ApplicationConfig.EmailSender)}"])
@@ -47,6 +48,15 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 builder.Services.AddRazorPages();
+
+builder.Services.AddAuthentication().AddGoogle(
+    options =>
+    {
+        var config = builder.Configuration.GetSection(GoogleConfig.Section).Get<GoogleConfig>();
+        options.ClientId = config.ClientId;
+        options.ClientSecret = config.ClientSecret;
+    }
+);
 
 builder.Services.AddAuthentication().AddFacebook(
     options =>
